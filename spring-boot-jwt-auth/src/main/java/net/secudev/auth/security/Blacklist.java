@@ -23,7 +23,7 @@ public class Blacklist {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	//a chaque demarrage de l'appli on appellera cette methode lit la liste des users disabled et les ajoute a la blacklist
+	// a chaque demarrage de l'appli on appellera cette methode lit la liste des users disabled et les ajoute a la blacklist
 	public void loadDisabledFromDB()
 	{
 		for(User u : utilisateurs.findByEnabledFalseOrderByLoginAsc())
