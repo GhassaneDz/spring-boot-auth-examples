@@ -51,6 +51,12 @@ public class Blacklist {
 		disabled.remove(user);
 		logger.info("UNBlacklisted "+user);
 	}
+	
+	public void CleanBlackList()
+	{
+		disabled.clear();
+	}
+
 
 	public List<String> getDisabled() {
 		return new ArrayList<String>(disabled);
