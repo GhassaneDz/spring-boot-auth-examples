@@ -18,16 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import net.secudev.auth.controller.dto.JSONCredential;
 import net.secudev.auth.model.role.Role;
-import net.secudev.auth.model.utilisateur.IUtilisateurRepository;
-import net.secudev.auth.model.utilisateur.Utilisateur;
+import net.secudev.auth.model.user.IUserRepository;
+import net.secudev.auth.model.user.User;
 import net.secudev.auth.security.JWTService;
+
+
 
 @RestController
 @RequestMapping("/ano/")
 public class AnonymousController {
 	
 	@Autowired
-	private IUtilisateurRepository utilisateurs;
+	private IUserRepository users;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -40,23 +42,23 @@ public class AnonymousController {
 	@PostMapping("jwt")
 	public ResponseEntity<?> getJWT(@RequestBody JSONCredential cred, HttpServletRequest request) throws Exception {
 
-		if (!utilisateurs.existsByLogin(cred.getLogin())) {
+		if (!users.existsByLogin(cred.getLogin())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bad user");
 		}
 
-		Utilisateur user = utilisateurs.findByLogin(cred.getLogin());
+		User user = users.findByLogin(cred.getLogin());
 
-		if (!user.isActif()) {
+		if (!user.isEnabled()) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Disabled");
 		}
 
-		if (!passwordEncoder.matches(cred.getMotDePasse(), user.getHashMotDePasse())) {
+		if (!passwordEncoder.matches(cred.getPassword(), user.getPasswordHash())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bad password");
 		}
 
 		List<String> roles = new ArrayList<String>();
 		for (Role role : user.getRoles()) {
-			roles.add(role.getLibelle());
+			roles.add(role.getLabel());
 		}
 
 		String jwt = jwtService.createJWT(user.getLogin(), roles);

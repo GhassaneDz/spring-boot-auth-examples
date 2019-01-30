@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class JSONCredential {
 	
-	private String login, motDePasse;
+	private String login, password;
 
 }

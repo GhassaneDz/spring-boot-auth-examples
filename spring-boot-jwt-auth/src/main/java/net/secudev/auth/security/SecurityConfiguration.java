@@ -68,10 +68,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 				// filtre qui va disséquer la requete http pour authentifier les requetes
 				.addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-				
-				// .addFilterAfter(apiKeyFilter),
-				// UsernamePasswordAuthenticationFilter.class)
-				
+							
 
 				// desactive les sessions car la communication est sans etat a conserver coté
 				// serveur

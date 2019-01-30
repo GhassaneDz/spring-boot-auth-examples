@@ -21,5 +21,5 @@ public abstract class AbstractEntity {
 	private long id;
 	
 	@Getter
-	private LocalDateTime dateCreation = LocalDateTime.now();	
+	private LocalDateTime creationDate = LocalDateTime.now();	
 }

@@ -19,13 +19,13 @@ public class Role extends AbstractEntity {
 	@NotEmpty
 	@Size(min = 1, max = 40)
 	@Column(nullable = false, unique = true)
-	private String libelle;
+	private String label;
 
 	protected Role() {}
 	
-	public Role(String libelle)
+	public Role(String label)
 	{
-		this.setLibelle(libelle);
+		this.setLabel(label);
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,17 +24,23 @@ public class JWTService {
 	@Value("${jwt.expiration}") // en secondes
 	private Long expiration;
 
+	@Autowired
+	private Blacklist blacklist;
+	
 	public String getJWTTextInfo(String jwt) {
 		Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(jwt).getBody();
 		return claims.toString();
 	}
 
 	@SuppressWarnings("unchecked")
-	public UsernamePasswordAuthenticationToken getAuthenticationFromJWT(String jwt) {
+	public UsernamePasswordAuthenticationToken getAuthenticationFromJWT(String jwt) throws Exception {
 		UsernamePasswordAuthenticationToken result = null;
 
 		try {
 			Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(jwt).getBody();
+			
+			if(blacklist.userInList(claims.getSubject())) throw new Exception("Blacklisted User");
+			
 			List<SimpleGrantedAuthority> roles = new ArrayList<SimpleGrantedAuthority>();
 			for (String role : (List<String>) claims.get("authorities")) {
 				SimpleGrantedAuthority sga = new SimpleGrantedAuthority("ROLE_" + role);

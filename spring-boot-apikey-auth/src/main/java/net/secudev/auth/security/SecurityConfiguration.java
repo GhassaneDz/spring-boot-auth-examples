@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Configuration
 @EnableWebSecurity
@@ -19,6 +20,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	AccessTokenFilter accessTokenFilter;	
+	
+//	@Autowired
+//	SecCtxRepo secCtxRepo;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -50,7 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		 */
 
 		//On desactive CSRF ansi que le formulaire de login auto généré et on active la protection CORS
-		http.csrf().disable().cors().and().formLogin().disable()
+		http.csrf().disable().cors().disable().formLogin().disable().rememberMe().disable().logout().disable()
 
 				// Permet d'accèder a ces racines d'URL de facon anonyme (le controller de
 				// login, un de tests et la doc d'api
@@ -64,7 +68,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated().and()
 
 				// Permet de capturer le header Authorization
-				.httpBasic().and()
+				.httpBasic().disable()
+				
 				
 				//Permet d'intercepter les acces refusés et passer une classe perso AccessDenyHandler ou je log les evenements
 				.exceptionHandling().accessDeniedHandler(new AccessDenyHandler()).and()
@@ -80,5 +85,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				// desactive les sessions car la communication est sans etat a conserver coté
 				// serveur
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				//.and().securityContext().securityContextRepository(secCtxRepo);
 	}
 }

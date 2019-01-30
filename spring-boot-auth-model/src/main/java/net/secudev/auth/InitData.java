@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import net.secudev.auth.model.role.IRoleRepository;
 import net.secudev.auth.model.role.Role;
-import net.secudev.auth.model.utilisateur.IUtilisateurRepository;
-import net.secudev.auth.model.utilisateur.Utilisateur;
+import net.secudev.auth.model.user.IUserRepository;
+import net.secudev.auth.model.user.User;
 
 @Component
 
@@ -21,7 +21,7 @@ public class InitData implements CommandLineRunner{
 	@Autowired
 	private IRoleRepository roles;
 	@Autowired
-	private IUtilisateurRepository utilisateurs;
+	private IUserRepository users;
 	
 	@Autowired
 	PasswordEncoder encoder;
@@ -32,7 +32,7 @@ public class InitData implements CommandLineRunner{
 	public void run(String... args) throws Exception {
 		
 		//Si les users et les roles sont vides
-		if(roles.count() == 0 && utilisateurs.count()==0){
+		if(roles.count() == 0 && users.count()==0){
 			
 			logger.trace("Data vides, création ...");
 						
@@ -43,27 +43,27 @@ public class InitData implements CommandLineRunner{
 			logger.trace("Ajout des rôles regular, admin et vip ...");
 			roles.saveAll(Arrays.asList(regular, vip, admin));			
 			
-			Utilisateur root = new Utilisateur("root", encoder.encode("password"), "root@secudev.net",Arrays.asList(admin));
-			root.genererCodeValidation(2);
+			User root = new User("admin", encoder.encode("password"), "admin@secudev.net",Arrays.asList(admin));
+			root.generateValidationCode(2);
 			root.createAccessToken(1);
-			root.setActif(true);					
-			utilisateurs.save(root);				
+			root.setEnabled(true);					
+			users.save(root);				
 			
-			Utilisateur bob = new Utilisateur("bob", encoder.encode("password"), "bob@secudev.net",Arrays.asList(regular));
-			bob.genererCodeValidation(2);
+			User bob = new User("bob", encoder.encode("password"), "bob@secudev.net",Arrays.asList(regular));
+			bob.generateValidationCode(2);
 			bob.createAccessToken(1);
-			bob.setActif(true);
-			utilisateurs.save(bob);
+			bob.setEnabled(true);
+			users.save(bob);
 			
 			
-			Utilisateur alice = new Utilisateur("alice", encoder.encode("password"), "alice@secudev.net",Arrays.asList(regular, vip));
-			alice.genererCodeValidation(2);			
+			User alice = new User("alice", encoder.encode("password"), "alice@secudev.net",Arrays.asList(regular, vip));
+			alice.generateValidationCode(2);			
 			alice.createAccessToken(1);
-			alice.setActif(true);
-			utilisateurs.save(alice);
+			alice.setEnabled(true);
+			users.save(alice);
 			
 			logger.trace("Ajout des utilisateurs admin, bob et alice ...");
-			utilisateurs.saveAll(Arrays.asList(root, bob, alice));
+			users.saveAll(Arrays.asList(root, bob, alice));
 		}		
 	}
 }
