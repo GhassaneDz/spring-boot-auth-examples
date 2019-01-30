@@ -15,7 +15,6 @@ import net.secudev.auth.model.user.IUserRepository;
 import net.secudev.auth.model.user.User;
 
 @Component
-
 public class InitData implements CommandLineRunner{
 
 	@Autowired
