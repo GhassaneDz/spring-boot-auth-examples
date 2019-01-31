@@ -17,14 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import net.secudev.auth.model.role.Role;
-import net.secudev.auth.model.utilisateur.IUtilisateurRepository;
-import net.secudev.auth.model.utilisateur.Utilisateur;
+import net.secudev.auth.model.user.IUserRepository;
+import net.secudev.auth.model.user.User;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 	@Autowired
-	IUtilisateurRepository utilisateurs;
+	IUserRepository users;
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -37,7 +37,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		String username = authentication.getName().toString();
 		
 
-		Utilisateur user = utilisateurs.findByLogin(username);
+		User user = users.findByLogin(username);
 
 		if (user == null) {
 			String msg = "Utilisateur non trouvé : "+username;
@@ -45,7 +45,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			throw new UsernameNotFoundException(msg);
 		}
 
-		if (!passwordEncoder.matches((CharSequence) authentication.getCredentials(), user.getHashMotDePasse())) {
+		if (!passwordEncoder.matches((CharSequence) authentication.getCredentials(), user.getPasswordHash())) {
 			String msg = "Mauvais mot de passe pour "+username;
 			logger.trace(msg);
 			throw new BadCredentialsException(msg);
@@ -54,12 +54,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		List<SimpleGrantedAuthority> roles = new ArrayList<SimpleGrantedAuthority>();
 
 		for (Role role : user.getRoles()) {
-			roles.add(new SimpleGrantedAuthority("ROLE_" + role.getLibelle()));			
+			roles.add(new SimpleGrantedAuthority("ROLE_" + role.getLabel()));			
 		}
 		
 		logger.trace("Authentification OK : " + user.getLogin()+" "+roles.toString());
 
-		return new UsernamePasswordAuthenticationToken(user.getLogin(), user.getHashMotDePasse(), roles);
+		return new UsernamePasswordAuthenticationToken(user.getLogin(), null, roles);
 	}
 
 	@Override

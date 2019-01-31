@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.secudev.auth.controller.dto.JSONCredential;
-import net.secudev.auth.model.utilisateur.IUtilisateurRepository;
-import net.secudev.auth.model.utilisateur.Utilisateur;
+import net.secudev.auth.model.user.IUserRepository;
+import net.secudev.auth.model.user.User;
 
 @RestController
 @RequestMapping("/ano/")
@@ -29,7 +29,7 @@ public class AnonymousController {
 	private int tokenExpiration;
 	
 	@Autowired
-	private IUtilisateurRepository utilisateurs;
+	private IUserRepository utilisateurs;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -45,26 +45,26 @@ public class AnonymousController {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bad user");
 		}
 
-		Utilisateur user = utilisateurs.findByLogin(cred.getLogin());
+		User user = utilisateurs.findByLogin(cred.getLogin());
 
-		if (!user.isActif()) {
+		if (!user.isEnabled()) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Disabled");
 		}
 
-		if (!passwordEncoder.matches(cred.getMotDePasse(), user.getHashMotDePasse())) {
+		if (!passwordEncoder.matches(cred.getPassword(), user.getPasswordHash())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bad password");
 		}
 
 		// 15 jours de validité pour ce token, devrions mettre cette valuer dans la
 		// config
 		user.createAccessToken(tokenExpiration);		
-		user.setDateDernierAcces(LocalDateTime.now());
-		user.setDerniereIpConnue(request.getRemoteAddr());
+		user.setLastAccessDate(LocalDateTime.now());
+		user.setLastIp(request.getRemoteAddr());
 
 		utilisateurs.save(user);
-		logger.trace("Access Token crée pour " + user.getLogin() + " : " + user.getAccessToken());
+		logger.trace("Access Token crée pour " + user.getLogin() + " : " + user.getApiToken());
 
-		return ResponseEntity.ok().body(user.getAccessToken());
+		return ResponseEntity.ok().body(user.getApiToken());
 	}
 
 	@GetMapping("ping")
